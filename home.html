@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+ </head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo"><a href="home.html" style="color: black;">Ecommerce</a></div>
+            <div class="menu">
+            <a href="home.html" style="color: black;">Home</a> <a href="products.html">Products</a> <a href="about.html">About</a> <a href="contact.html">Contact</a> <!--head line-->
+            </div>
+        
+            <div class="buttons">
+              <a href="login.html"><button><i class="fa fa-sign-in"></i> Login</button></a>
+              <a href="register.html"><button><i class="fa fa-user-plus"></i> Register</button></a>
+              <a href="cart.html" ><button ><i class="fa fa-shopping-cart"></i> <p id="cart_count" style="margin:0px;">Cart (...)</p></button></a>
+            </div>
+          </div>
+    </header>
+  <div style="position: relative; display: inline-block;" >
+    <img  width="100%" height="auto"  src="main.png.jpg" >
+    <div style="position: absolute; top: 30%; left: 35%; transform: translate(-50%, -50%);font-size: 24px; color: white;">
+     <h3> New Season Arrivals</h3>
+      This is a winder card with supporting text below as a natural lead-in to additional content. This content is a little bit longer
+    </div>
+  </div>
+ <h6 class="top"> Latest Products </h6>
+ <hr>
+ 
+
+  
+    <div class="navbar d-flex justify-content-center">
+            <div class="menu" id="categories">
+               <h4>loading....</h4>
+            </div>
+        
+            
+            
+    </div>
+    
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly;" id="products">
+
+                                <center><h1>LOADING.....</h1></center>
+
+                                
+        
+    </div>
+
+<script>
+
+    async function fetchData() {
+        try {
+            const apiUrl = "https://fakestoreapi.com/products";
+            const response = await fetch(apiUrl); // Await the fetch call
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            globalData = await response.json(); // Await JSON parsing and assign to global variable
+            console.log("Fetched Data:", globalData); // Log the data
+        } catch (error) {
+            console.error("Error fetching API:", error); // Handle errors
+        }
+    }
+
+    // Function to access global data
+    function printGlobalData() {
+        if (globalData) {
+            console.log("Global Data:", globalData); // Access the global variable
+        } else {
+            console.log("Data is not yet loaded.");
+        }
+    }
+
+    function get_all_products() {
+        if (globalData) {
+            return globalData
+        } else {
+            console.log("Data is not yet loaded.");
+        }
+    }
+
+    // Get categories
+    function get_categories(){
+        if (sessionStorage.getItem("p_json")) {
+            p_json = JSON.parse(sessionStorage.getItem("p_json"))
+            cat_lst = p_json.map(item=>item.category || "Unknown")
+            return cat_lst
+        } else {
+            console.log("Data is not yet loaded.");
+        }
+    }
+
+    function addItemToCart(id){
+        sessionStorage.setItem("cart_count", parseInt(sessionStorage.getItem("cart_count"))+1) ;
+        document.getElementById("cart_count").textContent = `Cart (${sessionStorage.getItem("cart_count")})`
+
+        p_json = JSON.parse(sessionStorage.getItem("p_json") )
+        p_json.forEach(
+                e =>{
+                    if(e.id==id){
+                        e.cart_count+=1
+                    }
+                }
+            )
+        sessionStorage.setItem("p_json", JSON.stringify(p_json) );
+        Swal.fire({
+          title: "",
+          text: "Successfully added to cart",
+          icon: "success",
+          footer: '<a href="cart.html">Go to cart</a>'
+        });
+    }
+
+    function filter_products(category){
+        p_json = JSON.parse(sessionStorage.getItem("p_json") )
+        p_html = " "
+        p_json.forEach( e => { if(e.category==category){
+
+            p_html += `<div class=" card-wrapper">
+                                    <div class="card" >
+                                      <img class="card-img-top" src="${e.image}" alt="Card image cap" width="100px" height="400px">
+                                      <div class="card-body">
+                                        <center><h5 class="card-title">${e.title}</h5></center>
+                                        <p class="card-text">${e.description}</p>
+                                      </div>
+                                      <ul class="list-group list-group-flush">
+                                        <center><li class="list-group-item">$ ${e.price}</li></center>
+                                      </ul>
+                                      <div class="card-body">
+                                        <center>
+                                            <button type="button" class="btn btn-dark card-link">Details</button>
+                                            <button type="button" class="btn btn-dark card-link" onclick="addItemToCart(${e.id})">Add to cart</button>
+                                        </center>
+                                      </div>
+                                    </div>
+                                </div>` 
+
+        }})
+
+        document.getElementById("products").innerHTML = p_html;
+    }
+
+    //get Categories
+    function getCategory(event, category){
+
+        categories_html = document.getElementById("categories");
+       
+        categories = new Set(get_categories())
+        console.log(categories)
+        if(category=="All"){
+            cat_html = `<a><button type="button" class="btn btn-dark" onclick="getCategory(event, 'All')">All</button></a>`   
+        }
+        else{
+            cat_html = `<a><button type="button" class="btn btn-outline-dark" onclick="getCategory(event, 'All')">All</button></a>`
+        }
+        categories.forEach( e => {
+
+            if( e==category ){
+                cat_html += `<a><button type="button" class="btn btn-dark" onclick="getCategory(event, '${e}')">${e}</button></a>` 
+            }
+            else{
+                cat_html += `<a><button type="button" class="btn btn-outline-dark" onclick="getCategory(event, '${e}')">${e}</button></a>`  
+            }
+        })
+        console.log(cat_html)
+        categories_html.innerHTML = cat_html
+
+
+        console.log(category)
+        p_html = " "
+        p_lst = JSON.parse(sessionStorage.getItem("p_json"))
+        p_lst.forEach( e => 
+
+            { 
+                if(e.category==category || category=="All"){
+
+                        p_html += `<div class=" card-wrapper">
+                                                <div class="card" >
+                                                  <img class="card-img-top" src="${e.image}" alt="Card image cap" width="100px" height="400px">
+                                                  <div class="card-body">
+                                                    <center><h5 class="card-title">${e.title}</h5></center>
+                                                    <p class="card-text">${e.description}</p>
+                                                  </div>
+                                                  <ul class="list-group list-group-flush">
+                                                    <center><li class="list-group-item">$ ${e.price}</li></center>
+                                                  </ul>
+                                                  <div class="card-body">
+                                                    <center>
+                                                        <a href="#" class="card-link"><button type="button" class="btn btn-dark">Details</button></a>
+                                                        <button type="button" class="btn btn-dark card-link" onclick='addItemToCart("${e.id}")'>Add to cart</button>
+                                                    </center>
+                                                  </div>
+                                                </div>
+                                            </div>` 
+
+                }
+            }
+        )
+
+        document.getElementById("products").innerHTML = p_html;
+    }
+
+    document.addEventListener("DOMContentLoaded",async ()=>{
+        await fetchData(); // Call the async function
+        if( sessionStorage.getItem("p_json") ){
+            console.log("k")
+        }
+        else{
+
+            p_json = get_all_products();
+            p_json.forEach(e=>{e.cart_count=0; e.category=e.category.replace("'","")});
+            sessionStorage.setItem("p_json", JSON.stringify(p_json) );
+            console.log(p_json)
+        }
+        
+        p_list = document.getElementById("products");
+        categories_html = document.getElementById("categories");
+       
+        categories = new Set(get_categories())
+        console.log(categories)
+        cat_html = `<a><button type="button" class="btn btn-dark" onclick="getCategory(event, 'All')">All</button></a>`
+        categories.forEach( e => {cat_html += `<a><button type="button" class="btn btn-outline-dark" onclick="getCategory(event, '${e}')">${e}</button></a>` })
+        console.log(cat_html)
+        categories_html.innerHTML = cat_html
+
+        //Adding products
+
+        p_html = " "
+        p_lst = get_all_products()
+        p_lst.forEach( e => { 
+
+            p_html += `<div class=" card-wrapper">
+                                    <div class="card" >
+                                      <img class="card-img-top" src="${e.image}" alt="Card image cap" width="100px" height="400px">
+                                      <div class="card-body">
+                                        <center><h5 class="card-title">${e.title}</h5></center>
+                                        <p class="card-text">${e.description}</p>
+                                      </div>
+                                      <ul class="list-group list-group-flush">
+                                        <center><li class="list-group-item">$ ${e.price}</li></center>
+                                      </ul>
+                                      <div class="card-body">
+                                        <center>
+                                            <button type="button" class="btn btn-dark card-link">Details</button>
+                                            <button type="button" class="btn btn-dark card-link" onclick="addItemToCart(${e.id})">Add to cart</button>
+                                        </center>
+                                      </div>
+                                    </div>
+                                </div>` 
+
+        })
+
+        p_list.innerHTML = p_html;
+
+
+        
+        
+
+        if( sessionStorage.getItem("cart_count") ){
+            document.getElementById("cart_count").textContent = `Cart (${sessionStorage.getItem("cart_count")})`;
+        }
+        else{
+            document.getElementById("cart_count").textContent = 'Cart (0)';
+            sessionStorage.setItem("cart_count",0)
+        }
+
+    })
+    
+</script>
+<footer>
+    <p>Made with ❤️ by Bhanu HARSHA</p>
+  </footer>
+</body>
+</html>
